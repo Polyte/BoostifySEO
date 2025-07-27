@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - Boostify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html, body, .josefin {
+            font-family: 'Josefin Sans', Arial, sans-serif !important;
+        }
+        h1, h2, h3, h4, h5, h6, .font-josefin {
+            font-family: 'Josefin Sans', Arial, sans-serif !important;
+        }
+        .glass {
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.18);
+            
+background: rgba(255, 255, 255, 0.2);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(1.6px);
+-webkit-backdrop-filter: blur(1.6px);
+border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .card-hover {
+            transition: transform 0.2s cubic-bezier(.4,2,.6,1), box-shadow 0.2s;
+        }
+        .card-hover:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 12px 32px 0 rgba(31,38,135,0.22);
+        }
+        .btn-cta {
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .btn-cta:hover {
+            background: linear-gradient(90deg, #ea580c 0%, #f97316 100%);
+            box-shadow: 0 4px 16px 0 rgba(249,115,22,0.18);
+            transform: scale(1.04);
+        }
+        .result-icon {
+            width: 2.2rem; height: 2.2rem; display: inline-block; vertical-align: middle;
+        }
+        .fadein {
+            animation: fadein 0.4s cubic-bezier(.4,2,.6,1);
+        }
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+        .tooltip:hover .tooltiptext, .tooltip:focus .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-bg-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.13;
+            z-index: 0;
+            border-radius: 1.5rem;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 min-h-screen flex flex-col transition-colors duration-300 josefin">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 shadow-lg py-4 px-8 flex items-center justify-between rounded-b-2xl">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="text-3xl font-extrabold text-orange-700 dark:text-orange-200 tracking-tight font-josefin">Boostify</a>
+            <span class="ml-3 text-base text-gray-500 dark:text-gray-400 font-josefin">SEO Audit</span>
+        </div>
+        <div class="flex items-center gap-8">
+            <a href="single-audit.html" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-semibold font-josefin transition">Single Page</a>
+            <a href="full-scan.html" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 font-semibold font-josefin transition">Full Site</a>
+            <a href="competitor-analysis.html" class="text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 font-semibold font-josefin transition">Competitor</a>
+            <a href="analytics.html" class="text-orange-600 dark:text-orange-400 font-semibold font-josefin transition">Analytics</a>
+            <a href="export.html" class="text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold font-josefin transition">Export</a>
+            <label class="flex items-center cursor-pointer ml-4">
+                <input type="checkbox" id="darkmode-toggle" class="form-checkbox h-5 w-5 text-orange-600">
+                <span class="ml-2 text-base font-josefin">Dark Mode</span>
+            </label>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="w-full bg-gradient-to-r from-orange-100 to-orange-200 dark:from-gray-800 dark:to-gray-900 py-0 mb-0 shadow-inner rounded-b-3xl relative overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1500&q=80" alt="Analytics Dashboard" class="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" style="z-index:1;">
+        <div class="max-w-5xl mx-auto px-4 text-center relative z-10 py-16">
+            <h1 class="text-5xl font-extrabold text-orange-800 dark:text-orange-100 mb-4 font-josefin tracking-tight drop-shadow-lg">Analytics Dashboard</h1>
+            <p class="text-xl text-gray-700 dark:text-gray-300 mb-8 font-josefin drop-shadow">Track your SEO performance over time with detailed analytics, trends, and historical data.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-4xl mx-auto px-4 mt-12 mb-20">
+        <div class="glass card-hover p-10 mb-10 border border-orange-100 dark:border-gray-800 shadow-2xl">
+            <h2 class="text-3xl font-bold text-orange-700 dark:text-orange-200 mb-6 font-josefin flex items-center gap-2">
+                <svg class="result-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Analytics Dashboard
+            </h2>
+            <form id="analytics-form" class="space-y-6">
+                <div>
+                    <label for="analytics-url" class="block font-semibold font-josefin mb-2">Website URL:</label>
+                    <input type="url" id="analytics-url" name="analytics-url" required placeholder="https://yourwebsite.com" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 font-josefin text-lg">
+                </div>
+                <div>
+                    <label for="date-range" class="block font-semibold font-josefin mb-2">Date Range:</label>
+                    <select id="date-range" name="date-range" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 font-josefin text-lg">
+                        <option value="7d">Last 7 Days</option>
+                        <option value="30d" selected>Last 30 Days</option>
+                        <option value="90d">Last 90 Days</option>
+                        <option value="1y">Last Year</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" class="flex-1 btn-cta bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold py-3 rounded-lg font-josefin text-lg shadow" id="analytics-btn">View Analytics</button>
+                </div>
+            </form>
+            <div id="analytics-spinner" class="flex justify-center mt-10 hidden">
+                <svg class="animate-spin h-10 w-10 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+            </div>
+            <div id="analytics-section" class="mt-10"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-white/90 dark:bg-gray-900/90 border-t border-gray-200 dark:border-gray-800 py-8 mt-16 text-center text-gray-500 dark:text-gray-400 font-josefin text-lg rounded-t-2xl shadow-inner">
+        <div class="max-w-4xl mx-auto px-4">
+            &copy; 2024 Boostify SEO Audit. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode: set initial state from localStorage
+        const darkToggle = document.getElementById('darkmode-toggle');
+        // On load, set theme from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            darkToggle.checked = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+            darkToggle.checked = false;
+        }
+        // Toggle logic
+        darkToggle.addEventListener('change', function() {
+            document.documentElement.classList.toggle('dark', this.checked);
+            localStorage.setItem('theme', this.checked ? 'dark' : 'light');
+        });
+
+        // Analytics logic
+        const analyticsBtn = document.getElementById('analytics-btn');
+        const analyticsSection = document.getElementById('analytics-section');
+        const analyticsUrlInput = document.getElementById('analytics-url');
+        const dateRangeInput = document.getElementById('date-range');
+        const analyticsSpinner = document.getElementById('analytics-spinner');
+
+        analyticsBtn.addEventListener('click', async () => {
+            analyticsSection.innerHTML = '';
+            analyticsSpinner.classList.remove('hidden');
+            analyticsBtn.disabled = true;
+            try {
+                const url = analyticsUrlInput.value;
+                const dateRange = dateRangeInput.value;
+                
+                if (!url) throw new Error('Please enter a website URL.');
+                
+                const res = await fetch('/analytics/trends', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url, date_range: dateRange })
+                });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                renderAnalyticsDashboard(data);
+            } catch (err) {
+                analyticsSpinner.classList.add('hidden');
+                analyticsSection.innerHTML = `<div class="bg-red-100 text-red-700 p-4 rounded mt-4">${err.message.replace(/\n/g, '<br>')}</div>`;
+            } finally {
+                analyticsBtn.disabled = false;
+            }
+        });
+
+        function renderAnalyticsDashboard(data) {
+            analyticsSpinner.classList.add('hidden');
+            
+            const trends = data.trends || [];
+            const summary = data.summary || {};
+            
+            if (trends.length === 0) {
+                analyticsSection.innerHTML = `
+                    <div class="bg-yellow-100 text-yellow-700 p-4 rounded mt-4">
+                        No analytics data found for this URL. Run some SEO audits first to see trends.
+                    </div>
+                `;
+                return;
+            }
+
+            // Create charts
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'space-y-8';
+            
+            // SEO Score Chart
+            const seoChartCanvas = document.createElement('canvas');
+            seoChartCanvas.id = 'seoChart';
+            seoChartCanvas.style.height = '600px';
+            chartContainer.appendChild(seoChartCanvas);
+            
+            // Content Score Chart
+            const contentChartCanvas = document.createElement('canvas');
+            contentChartCanvas.id = 'contentChart';
+            contentChartCanvas.style.height = '600px';
+            chartContainer.appendChild(contentChartCanvas);
+            
+            // Technical Score Chart
+            const technicalChartCanvas = document.createElement('canvas');
+            technicalChartCanvas.id = 'technicalChart';
+            technicalChartCanvas.style.height = '600px';
+            chartContainer.appendChild(technicalChartCanvas);
+            
+            analyticsSection.appendChild(chartContainer);
+            
+            // Initialize charts
+            setTimeout(() => {
+                createCharts(trends, summary);
+            }, 100);
+        }
+
+        function createCharts(trends, summary) {
+            const dates = trends.map(t => t.date);
+            const seoScores = trends.map(t => t.seo_score);
+            const contentScores = trends.map(t => t.content_score);
+            const technicalScores = trends.map(t => t.technical_score);
+            
+            // SEO Score Chart
+            new Chart(document.getElementById('seoChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'SEO Score',
+                        data: seoScores,
+                        borderColor: '#ea580c',
+                        backgroundColor: 'rgba(234, 88, 12, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'SEO Score Trends',
+                            font: { size: 18, family: 'Josefin Sans' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            
+            // Content Score Chart
+            new Chart(document.getElementById('contentChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Content Quality Score',
+                        data: contentScores,
+                        borderColor: '#f97316',
+                        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Content Quality Trends',
+                            font: { size: 18, family: 'Josefin Sans' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            
+            // Technical Score Chart
+            new Chart(document.getElementById('technicalChart'), {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: 'Technical Score',
+                        data: technicalScores,
+                        borderColor: '#fb923c',
+                        backgroundColor: 'rgba(251, 146, 60, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Technical SEO Trends',
+                            font: { size: 18, family: 'Josefin Sans' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html> 

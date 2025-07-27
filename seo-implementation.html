@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Implementation Dashboard | Boostify</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-3xl mx-auto py-10 px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">SEO Implementation Dashboard</h1>
+        <form id="seo-impl-form" class="bg-white p-6 rounded-lg shadow mb-8">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2" for="url">Website URL</label>
+                <input type="url" id="url" name="url" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="https://example.com">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2" for="content_type">Content Type</label>
+                <select id="content_type" name="content_type" class="w-full border border-gray-300 rounded px-3 py-2">
+                    <option value="landing-page">Landing Page</option>
+                    <option value="blog-post">Blog Post</option>
+                    <option value="product-description">Product Description</option>
+                    <option value="meta-content">Meta Content</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2" for="focus_keywords">Focus Keywords</label>
+                <input type="text" id="focus_keywords" name="focus_keywords" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="e.g. architecture, construction, design">
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2" for="target_audience">Target Audience</label>
+                <input type="text" id="target_audience" name="target_audience" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="e.g. property owners, developers">
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-semibold transition-colors">Generate SEO Implementation</button>
+        </form>
+
+        <div id="results" class="hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Optimized Content</h2>
+            <div id="optimized-content" class="prose bg-white p-4 rounded border border-gray-200 mb-8"></div>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Implementation Guide</h2>
+            <div id="implementation-guide" class="bg-white p-4 rounded border border-gray-200 mb-8"></div>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Audit Summary</h2>
+            <div id="audit-summary" class="bg-white p-4 rounded border border-gray-200"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('seo-impl-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const url = document.getElementById('url').value;
+            const content_type = document.getElementById('content_type').value;
+            const focus_keywords = document.getElementById('focus_keywords').value;
+            const target_audience = document.getElementById('target_audience').value;
+
+            const payload = {
+                url,
+                content_type,
+                focus_keywords,
+                target_audience
+            };
+
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('optimized-content');
+            const guideDiv = document.getElementById('implementation-guide');
+            const auditDiv = document.getElementById('audit-summary');
+            resultsDiv.classList.add('hidden');
+            contentDiv.innerHTML = guideDiv.innerHTML = auditDiv.innerHTML = '<span class="text-gray-500">Loading...</span>';
+
+            try {
+                const response = await fetch('/seo-implementation/generate-content', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error('Failed to generate content');
+                const result = await response.json();
+                // Display optimized content
+                contentDiv.innerHTML = result.optimized_content.content.replace(/\n/g, '<br>');
+                // Display implementation guide
+                let guideHtml = '';
+                if (result.implementation_guide) {
+                    guideHtml += '<h3 class="font-semibold mb-2">Priority Actions</h3><ul class="list-disc ml-6 mb-4">';
+                    for (const action of result.implementation_guide.priority_actions) {
+                        guideHtml += `<li>${action}</li>`;
+                    }
+                    guideHtml += '</ul>';
+                    guideHtml += '<h3 class="font-semibold mb-2">Content Improvements</h3><ul class="list-disc ml-6 mb-4">';
+                    for (const action of result.implementation_guide.content_improvements) {
+                        guideHtml += `<li>${action}</li>`;
+                    }
+                    guideHtml += '</ul>';
+                    guideHtml += '<h3 class="font-semibold mb-2">Technical Improvements</h3><ul class="list-disc ml-6 mb-4">';
+                    for (const action of result.implementation_guide.technical_improvements) {
+                        guideHtml += `<li>${action}</li>`;
+                    }
+                    guideHtml += '</ul>';
+                    guideHtml += '<h3 class="font-semibold mb-2">Timeline</h3><ul class="list-disc ml-6">';
+                    for (const [week, desc] of Object.entries(result.implementation_guide.timeline)) {
+                        guideHtml += `<li><strong>${week.replace('_', ' ').toUpperCase()}:</strong> ${desc}</li>`;
+                    }
+                    guideHtml += '</ul>';
+                }
+                guideDiv.innerHTML = guideHtml;
+                // Display audit summary
+                let auditHtml = '';
+                if (result.original_audit) {
+                    auditHtml += `<div><strong>SEO Score:</strong> ${result.original_audit.seo_score || '-'} / 100</div>`;
+                    auditHtml += `<div><strong>Content Quality Score:</strong> ${result.original_audit.content_quality_score || '-'} / 100</div>`;
+                    auditHtml += `<div><strong>Technical Score:</strong> ${result.original_audit.technical_score || '-'} / 100</div>`;
+                    auditHtml += `<div><strong>Focus Keyphrase:</strong> ${result.original_audit.focus_keyphrase || '-'}</div>`;
+                    if (result.original_audit.suggestions && result.original_audit.suggestions.length) {
+                        auditHtml += '<div class="mt-2"><strong>Suggestions:</strong><ul class="list-disc ml-6">';
+                        for (const s of result.original_audit.suggestions) {
+                            auditHtml += `<li>${s}</li>`;
+                        }
+                        auditHtml += '</ul></div>';
+                    }
+                }
+                auditDiv.innerHTML = auditHtml;
+                resultsDiv.classList.remove('hidden');
+            } catch (err) {
+                contentDiv.innerHTML = guideDiv.innerHTML = auditDiv.innerHTML = `<span class="text-red-600">Error: ${err.message}</span>`;
+                resultsDiv.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+</html> 

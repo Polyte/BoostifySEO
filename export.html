@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export & Reports - Boostify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html, body, .josefin {
+            font-family: 'Josefin Sans', Arial, sans-serif !important;
+        }
+        h1, h2, h3, h4, h5, h6, .font-josefin {
+            font-family: 'Josefin Sans', Arial, sans-serif !important;
+        }
+        .glass {
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.18);
+            
+background: rgba(255, 255, 255, 0.2);
+border-radius: 16px;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+backdrop-filter: blur(1.6px);
+-webkit-backdrop-filter: blur(1.6px);
+border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .card-hover {
+            transition: transform 0.2s cubic-bezier(.4,2,.6,1), box-shadow 0.2s;
+        }
+        .card-hover:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 12px 32px 0 rgba(31,38,135,0.22);
+        }
+        .btn-cta {
+            transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+        }
+        .btn-cta:hover {
+            background: linear-gradient(90deg, #4f46e5 0%, #6366f1 100%);
+            box-shadow: 0 4px 16px 0 rgba(99,102,241,0.18);
+            transform: scale(1.04);
+        }
+        .result-icon {
+            width: 2.2rem; height: 2.2rem; display: inline-block; vertical-align: middle;
+        }
+        .fadein {
+            animation: fadein 0.4s cubic-bezier(.4,2,.6,1);
+        }
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: none; }
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #222;
+            color: #fff;
+            text-align: left;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+        .tooltip:hover .tooltiptext, .tooltip:focus .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-bg-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.13;
+            z-index: 0;
+            border-radius: 1.5rem;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen flex flex-col transition-colors duration-300 josefin">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-30 bg-white/90 dark:bg-gray-900/90 shadow-lg py-4 px-8 flex items-center justify-between rounded-b-2xl">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="text-3xl font-extrabold text-indigo-700 dark:text-indigo-200 tracking-tight font-josefin">Boostify</a>
+            <span class="ml-3 text-base text-gray-500 dark:text-gray-400 font-josefin">SEO Audit</span>
+        </div>
+        <div class="flex items-center gap-8">
+            <a href="single-audit.html" class="text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 font-semibold font-josefin transition">Single Page</a>
+            <a href="full-scan.html" class="text-gray-700 dark:text-gray-200 hover:text-green-600 dark:hover:text-green-400 font-semibold font-josefin transition">Full Site</a>
+            <a href="competitor-analysis.html" class="text-gray-700 dark:text-gray-200 hover:text-purple-600 dark:hover:text-purple-400 font-semibold font-josefin transition">Competitor</a>
+            <a href="analytics.html" class="text-gray-700 dark:text-gray-200 hover:text-orange-600 dark:hover:text-orange-400 font-semibold font-josefin transition">Analytics</a>
+            <a href="export.html" class="text-indigo-600 dark:text-indigo-400 font-semibold font-josefin transition">Export</a>
+            <label class="flex items-center cursor-pointer ml-4">
+                <input type="checkbox" id="darkmode-toggle" class="form-checkbox h-5 w-5 text-indigo-600">
+                <span class="ml-2 text-base font-josefin">Dark Mode</span>
+            </label>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="w-full bg-gradient-to-r from-indigo-100 to-indigo-200 dark:from-gray-800 dark:to-gray-900 py-0 mb-0 shadow-inner rounded-b-3xl relative overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1500&q=80" alt="Export & Reports" class="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none select-none" style="z-index:1;">
+        <div class="max-w-5xl mx-auto px-4 text-center relative z-10 py-16">
+            <h1 class="text-5xl font-extrabold text-indigo-800 dark:text-indigo-100 mb-4 font-josefin tracking-tight drop-shadow-lg">Export & Reports</h1>
+            <p class="text-xl text-gray-700 dark:text-gray-300 mb-8 font-josefin drop-shadow">Generate professional reports in multiple formats and schedule automated reports for ongoing monitoring.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full max-w-6xl mx-auto px-4 mt-12 mb-20">
+        <!-- Export Reports Section -->
+        <div class="glass card-hover p-10 mb-10 border border-indigo-100 dark:border-gray-800 shadow-2xl">
+            <h2 class="text-3xl font-bold text-indigo-700 dark:text-indigo-200 mb-6 font-josefin flex items-center gap-2">
+                <svg class="result-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Export Reports
+            </h2>
+            <form id="export-form" class="space-y-6">
+                <div>
+                    <label for="export-url" class="block font-semibold font-josefin mb-2">Website URL:</label>
+                    <input type="url" id="export-url" name="export-url" required placeholder="https://yourwebsite.com" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="export-format" class="block font-semibold font-josefin mb-2">Format:</label>
+                        <select id="export-format" name="export-format" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                            <option value="pdf">PDF Report</option>
+                            <option value="pptx">PowerPoint Presentation</option>
+                            <option value="html">HTML Report</option>
+                            <option value="json">JSON Data</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="export-template" class="block font-semibold font-josefin mb-2">Template:</label>
+                        <select id="export-template" name="export-template" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                            <option value="default">Default Report</option>
+                            <option value="executive">Executive Summary</option>
+                            <option value="detailed">Detailed Analysis</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" class="flex-1 btn-cta bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold py-3 rounded-lg font-josefin text-lg shadow" id="export-btn">Generate Report</button>
+                </div>
+            </form>
+            <div id="export-spinner" class="flex justify-center mt-10 hidden">
+                <svg class="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+            </div>
+            <div id="export-section" class="mt-10"></div>
+        </div>
+
+        <!-- Scheduled Reports Section -->
+        <div class="glass card-hover p-10 mb-10 border border-indigo-100 dark:border-gray-800 shadow-2xl">
+            <h2 class="text-3xl font-bold text-indigo-700 dark:text-indigo-200 mb-6 font-josefin flex items-center gap-2">
+                <svg class="result-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Scheduled Reports
+            </h2>
+            <form id="schedule-form" class="space-y-6">
+                <div>
+                    <label for="schedule-url" class="block font-semibold font-josefin mb-2">Website URL:</label>
+                    <input type="url" id="schedule-url" name="schedule-url" required placeholder="https://yourwebsite.com" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="schedule-frequency" class="block font-semibold font-josefin mb-2">Frequency:</label>
+                        <select id="schedule-frequency" name="schedule-frequency" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="schedule-format" class="block font-semibold font-josefin mb-2">Format:</label>
+                        <select id="schedule-format" name="schedule-format" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                            <option value="pdf">PDF</option>
+                            <option value="pptx">PowerPoint</option>
+                            <option value="html">HTML</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="schedule-email" class="block font-semibold font-josefin mb-2">Email (Optional):</label>
+                        <input type="email" id="schedule-email" name="schedule-email" placeholder="your@email.com" class="w-full px-5 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 font-josefin text-lg">
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <button type="button" class="flex-1 btn-cta bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-bold py-3 rounded-lg font-josefin text-lg shadow" id="schedule-btn">Schedule Report</button>
+                </div>
+            </form>
+            <div id="schedule-spinner" class="flex justify-center mt-10 hidden">
+                <svg class="animate-spin h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+            </div>
+            <div id="schedule-section" class="mt-10"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full bg-white/90 dark:bg-gray-900/90 border-t border-gray-200 dark:border-gray-800 py-8 mt-16 text-center text-gray-500 dark:text-gray-400 font-josefin text-lg rounded-t-2xl shadow-inner">
+        <div class="max-w-4xl mx-auto px-4">
+            &copy; 2024 Boostify SEO Audit. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode: set initial state from localStorage
+        const darkToggle = document.getElementById('darkmode-toggle');
+        // On load, set theme from localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            darkToggle.checked = true;
+        } else {
+            document.documentElement.classList.remove('dark');
+            darkToggle.checked = false;
+        }
+        // Toggle logic
+        darkToggle.addEventListener('change', function() {
+            document.documentElement.classList.toggle('dark', this.checked);
+            localStorage.setItem('theme', this.checked ? 'dark' : 'light');
+        });
+
+        // Export logic
+        const exportBtn = document.getElementById('export-btn');
+        const exportSection = document.getElementById('export-section');
+        const exportUrlInput = document.getElementById('export-url');
+        const exportFormatInput = document.getElementById('export-format');
+        const exportTemplateInput = document.getElementById('export-template');
+        const exportSpinner = document.getElementById('export-spinner');
+
+        exportBtn.addEventListener('click', async () => {
+            exportSection.innerHTML = '';
+            exportSpinner.classList.remove('hidden');
+            exportBtn.disabled = true;
+            try {
+                const url = exportUrlInput.value;
+                const format = exportFormatInput.value;
+                const template = exportTemplateInput.value;
+                
+                if (!url) throw new Error('Please enter a website URL.');
+                
+                const res = await fetch('/export/report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        url, 
+                        format, 
+                        template,
+                        include_charts: true,
+                        include_recommendations: true
+                    })
+                });
+                if (!res.ok) {
+                    let errorMsg = 'Unknown error';
+                    try {
+                        const data = await res.json();
+                        errorMsg = data.detail || JSON.stringify(data);
+                    } catch (e) {
+                        try {
+                            errorMsg = await res.text();
+                        } catch {}
+                    }
+                    throw new Error(errorMsg);
+                }
+                // Handle different response types
+                if (format === 'json') {
+                    const data = await res.json();
+                    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+                    downloadFile(blob, `seo-audit-${url.replace(/[^a-zA-Z0-9]/g, '-')}.json`);
+                } else {
+                    const blob = await res.blob();
+                    const filename = `seo-audit-${url.replace(/[^a-zA-Z0-9]/g, '-')}.${format}`;
+                    downloadFile(blob, filename);
+                }
+                
+                exportSection.innerHTML = `
+                    <div class="bg-green-100 text-green-700 p-4 rounded mt-4">
+                        Report generated successfully! Download should start automatically.
+                    </div>
+                `;
+            } catch (err) {
+                exportSpinner.classList.add('hidden');
+                exportSection.innerHTML = `<div class="bg-red-100 text-red-700 p-4 rounded mt-4"><b>Export failed:</b><br>${(err.message || err).replace(/\n/g, '<br>')}</div>`;
+            } finally {
+                exportBtn.disabled = false;
+            }
+        });
+
+        // Schedule logic
+        const scheduleBtn = document.getElementById('schedule-btn');
+        const scheduleSection = document.getElementById('schedule-section');
+        const scheduleUrlInput = document.getElementById('schedule-url');
+        const scheduleFrequencyInput = document.getElementById('schedule-frequency');
+        const scheduleFormatInput = document.getElementById('schedule-format');
+        const scheduleEmailInput = document.getElementById('schedule-email');
+        const scheduleSpinner = document.getElementById('schedule-spinner');
+
+        scheduleBtn.addEventListener('click', async () => {
+            scheduleSection.innerHTML = '';
+            scheduleSpinner.classList.remove('hidden');
+            scheduleBtn.disabled = true;
+            try {
+                const url = scheduleUrlInput.value;
+                const frequency = scheduleFrequencyInput.value;
+                const format = scheduleFormatInput.value;
+                const email = scheduleEmailInput.value;
+                
+                if (!url) throw new Error('Please enter a website URL.');
+                
+                const res = await fetch('/export/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        url, 
+                        frequency, 
+                        format,
+                        email: email || null,
+                        template: 'default'
+                    })
+                });
+                if (!res.ok) throw new Error(await res.text());
+                const data = await res.json();
+                
+                scheduleSection.innerHTML = `
+                    <div class="bg-green-100 text-green-700 p-4 rounded mt-4">
+                        <h4 class="font-semibold">Report Scheduled Successfully!</h4>
+                        <p>Report ID: ${data.report_id}</p>
+                        <p>Frequency: ${data.frequency}</p>
+                        <p>Format: ${data.format}</p>
+                        <p>${data.message}</p>
+                    </div>
+                `;
+            } catch (err) {
+                scheduleSpinner.classList.add('hidden');
+                scheduleSection.innerHTML = `<div class="bg-red-100 text-red-700 p-4 rounded mt-4">${err.message.replace(/\n/g, '<br>')}</div>`;
+            } finally {
+                scheduleBtn.disabled = false;
+            }
+        });
+
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { 
+                document.body.removeChild(a); 
+                URL.revokeObjectURL(url); 
+            }, 100);
+        }
+    </script>
+</body>
+</html> 

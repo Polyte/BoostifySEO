@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Audit Results | Boostify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        html, body, .josefin {
+            font-family: 'Josefin Sans', Arial, sans-serif !important;
+        }
+        h1, h2, h3, h4, h5, h6, .font-josefin {
+            font-family: 'Josefin Sans', Arial, sans-serif !important;
+        }
+        .glass {
+            background: rgba(255,255,255,0.9);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.1);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .card-hover {
+            transition: transform 0.2s cubic-bezier(.4,2,.6,1), box-shadow 0.2s;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px 0 rgba(31,38,135,0.15);
+        }
+        .btn-cta {
+            transition: all 0.2s ease;
+        }
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .fadein {
+            animation: fadein 0.6s ease-out;
+        }
+        @keyframes fadein {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: none; }
+        }
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .score-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        .metric-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.1);
+        }
+        .tab-button {
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadein 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">B</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Boostify</h1>
+                        <p class="text-sm text-gray-500">SEO Audit Results</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="index.html" class="text-gray-600 hover:text-gray-900 font-medium">← Back to Home</a>
+                    <button id="dark-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Results Container -->
+        <div id="results-container" class="space-y-8">
+            <!-- Loading State -->
+            <div id="loading" class="text-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                <p class="mt-4 text-gray-600">Loading results...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="error" class="hidden text-center py-12">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                    <svg class="w-12 h-12 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                    </svg>
+                    <h3 class="text-lg font-semibold text-red-800 mb-2">No Results Found</h3>
+                    <p class="text-red-600 mb-4">Please run an SEO audit first to see results here.</p>
+                    <a href="index.html" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Run SEO Audit
+                    </a>
+                </div>
+            </div>
+
+            <!-- Results Content -->
+            <div id="results-content" class="hidden space-y-8">
+                <!-- Score Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- SEO Score Card -->
+                    <div class="score-card fadein">
+                        <div class="relative z-10">
+                            <h2 class="text-2xl font-bold mb-2">SEO Score</h2>
+                            <div class="text-4xl font-bold mb-4" id="seo-score">85</div>
+                            <p class="text-blue-100 text-sm">Overall SEO performance</p>
+                        </div>
+                    </div>
+
+                    <!-- Content Quality Score Card -->
+                    <div class="score-card fadein" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <div class="relative z-10">
+                            <h2 class="text-2xl font-bold mb-2">Content Quality</h2>
+                            <div class="text-4xl font-bold mb-4" id="content-score">75</div>
+                            <p class="text-green-100 text-sm">Content optimization</p>
+                        </div>
+                    </div>
+
+                    <!-- Technical Score Card -->
+                    <div class="score-card fadein" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                        <div class="relative z-10">
+                            <h2 class="text-2xl font-bold mb-2">Technical Score</h2>
+                            <div class="text-4xl font-bold mb-4" id="technical-score">80</div>
+                            <p class="text-orange-100 text-sm">Technical SEO factors</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <div class="flex flex-wrap gap-2 justify-center">
+                    <button class="tab-button active" data-tab="overview">Overview</button>
+                    <button class="tab-button" data-tab="metrics">Detailed Metrics</button>
+                    <button class="tab-button" data-tab="broken-resources">Broken Resources</button>
+                    <button class="tab-button" data-tab="missing-alt">Missing Alt Text</button>
+                    <button class="tab-button" data-tab="links-images">Links & Images</button>
+                    <button class="tab-button" data-tab="charts">Charts</button>
+                    <button class="tab-button" data-tab="suggestions">Suggestions</button>
+                    <button class="tab-button" data-tab="export">Export</button>
+                    <button class="tab-button" data-tab="scheduled">Scheduled Reports</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div class="space-y-8">
+                    <!-- Overview Tab -->
+                    <div id="tab-overview" class="tab-content active">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Keywords</h3>
+                                    <span class="text-blue-600 font-bold" id="keyword-count">8</span>
+                                </div>
+                                <div class="space-y-2" id="keywords-list">
+                                    <!-- Keywords will be populated here -->
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Meta Description</h3>
+                                    <span class="text-green-600 font-bold">✓</span>
+                                </div>
+                                <p class="text-gray-600 text-sm" id="meta-description">
+                                    <!-- Meta description will be populated here -->
+                                </p>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Title Tag</h3>
+                                    <span class="text-green-600 font-bold">✓</span>
+                                </div>
+                                <p class="text-gray-600 text-sm" id="title-tag">
+                                    <!-- Title tag will be populated here -->
+                                </p>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Content Length</h3>
+                                    <span class="text-blue-600 font-bold" id="word-count">0</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">words on the page</p>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Readability</h3>
+                                    <span class="text-green-600 font-bold">Good</span>
+                                </div>
+                                <p class="text-gray-600 text-sm" id="readability">
+                                    <!-- Readability will be populated here -->
+                                </p>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Images</h3>
+                                    <span class="text-blue-600 font-bold" id="image-count">0</span>
+                                </div>
+                                <p class="text-gray-600 text-sm" id="alt-text-status">
+                                    <!-- Alt text status will be populated here -->
+                                </p>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Images Missing Alt Text</h3>
+                                    <span class="text-orange-600 font-bold" id="missing-alt-count">0</span>
+                                </div>
+                                <div class="space-y-2" id="missing-alt-images">
+                                    <!-- Images missing alt text will be populated here -->
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Broken Images</h3>
+                                    <span class="text-red-600 font-bold" id="broken-images-count">0</span>
+                                </div>
+                                <div class="space-y-2" id="broken-images-list">
+                                    <!-- Broken images will be populated here -->
+                                </div>
+                            </div>
+
+                            <div class="metric-card">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">Broken Links</h3>
+                                    <span class="text-red-600 font-bold" id="broken-links-count">0</span>
+                                </div>
+                                <div class="space-y-2" id="broken-links-list">
+                                    <!-- Broken links will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Metrics Tab -->
+                    <div id="tab-metrics" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">Technical SEO Metrics</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Mobile Friendly</span>
+                                        <span class="text-green-600 font-bold" id="mobile-friendly">✓</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Structured Data</span>
+                                        <span class="text-blue-600 font-bold" id="structured-data">✓</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Canonical Tag</span>
+                                        <span class="text-green-600 font-bold" id="canonical-tag">✓</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Internal Links</span>
+                                        <span class="text-blue-600 font-bold" id="internal-links">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">External Links</span>
+                                        <span class="text-blue-600 font-bold" id="external-links">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <span class="font-medium">Page Speed Score</span>
+                                        <span class="text-green-600 font-bold" id="page-speed">85</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Broken Resources Tab -->
+                    <div id="tab-broken-resources" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">Broken Resources Analysis</h3>
+                            
+                            <!-- Broken Images Section -->
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-xl font-semibold text-gray-800">Broken Images</h4>
+                                    <span class="text-red-600 font-bold text-lg" id="broken-images-count-tab">0</span>
+                                </div>
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-6" id="broken-images-details">
+                                    <!-- Broken images details will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Broken Links Section -->
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-xl font-semibold text-gray-800">Broken Links</h4>
+                                    <span class="text-red-600 font-bold text-lg" id="broken-links-count-tab">0</span>
+                                </div>
+                                <div class="bg-red-50 border border-red-200 rounded-lg p-6" id="broken-links-details">
+                                    <!-- Broken links details will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                <h4 class="text-lg font-semibold text-blue-800 mb-3">Impact Summary</h4>
+                                <div class="space-y-2 text-sm text-blue-700">
+                                    <p>• Broken images can negatively impact user experience and page load times</p>
+                                    <p>• Broken links can harm SEO rankings and user trust</p>
+                                    <p>• Fix these issues to improve your website's performance and SEO score</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Missing Alt Text Tab -->
+                    <div id="tab-missing-alt" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">Images Missing Alt Text</h3>
+                            
+                            <div class="mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-xl font-semibold text-gray-800">Images Found</h4>
+                                    <span class="text-orange-600 font-bold text-lg" id="missing-alt-count-tab">0</span>
+                                </div>
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-6" id="missing-alt-images-grid">
+                                    <!-- Images missing alt text will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                <h4 class="text-lg font-semibold text-blue-800 mb-3">Why Alt Text Matters</h4>
+                                <div class="space-y-2 text-sm text-blue-700">
+                                    <p>• Alt text helps screen readers describe images to visually impaired users</p>
+                                    <p>• Search engines use alt text to understand image content</p>
+                                    <p>• Missing alt text can hurt accessibility and SEO rankings</p>
+                                    <p>• Add descriptive alt text to all images for better user experience</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Links & Images Tab -->
+                    <div id="tab-links-images" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">All Internal Links & Images</h3>
+                            
+                            <!-- Internal Links Section -->
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-xl font-semibold text-gray-800">Internal Links</h4>
+                                    <span class="text-blue-600 font-bold text-lg" id="internal-links-count-tab">0</span>
+                                </div>
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                                            <thead class="bg-blue-600 text-white">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">Link Text</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">URL</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">Title</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">ID</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="internal-links-table">
+                                                <!-- Internal links will be populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- All Images Section -->
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="text-xl font-semibold text-gray-800">All Images</h4>
+                                    <span class="text-green-600 font-bold text-lg" id="all-images-count-tab">0</span>
+                                </div>
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full bg-white rounded-lg overflow-hidden">
+                                            <thead class="bg-green-600 text-white">
+                                                <tr>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">Image</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">URL</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">Alt Text</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">Dimensions</th>
+                                                    <th class="px-4 py-3 text-left text-sm font-semibold">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="all-images-table">
+                                                <!-- All images will be populated here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Summary -->
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                                <h4 class="text-lg font-semibold text-gray-800 mb-3">Summary</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                                    <div>
+                                        <p><strong>Internal Links:</strong> <span id="internal-links-summary">0</span></p>
+                                        <p><strong>Total Images:</strong> <span id="all-images-summary">0</span></p>
+                                    </div>
+                                    <div>
+                                        <p><strong>Images with Alt:</strong> <span id="images-with-alt-summary">0</span></p>
+                                        <p><strong>Images without Alt:</strong> <span id="images-without-alt-summary">0</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Tab -->
+                    <div id="tab-charts" class="tab-content">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                <div class="glass p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-4 text-gray-900">SEO Factors Distribution</h3>
+                        <div class="flex justify-center">
+                            <canvas id="seoChart" width="600" height="600" style="max-width: 100%; height: auto;"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-4 text-gray-900">Content Analysis</h3>
+                        <div class="flex justify-center">
+                            <canvas id="contentChart" width="600" height="600" style="max-width: 100%; height: auto;"></canvas>
+                        </div>
+                    </div>
+                        </div>
+                    </div>
+
+                    <!-- Suggestions Tab -->
+                    <div id="tab-suggestions" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">SEO Recommendations</h3>
+                            <div class="space-y-4" id="suggestions-list">
+                                <!-- Suggestions will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Tab -->
+                    <div id="tab-export" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">Export Results</h3>
+                            
+                            <!-- Report Templates -->
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Report Templates</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <div class="border rounded-lg p-4 hover:border-blue-500 transition-colors">
+                                        <h5 class="font-semibold text-gray-900">Default Report</h5>
+                                        <p class="text-sm text-gray-600">Standard SEO audit with all metrics</p>
+                                        <div class="mt-3 space-y-2">
+                                            <button class="export-btn w-full bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700" data-format="pdf" data-template="default">PDF</button>
+                                            <button class="export-btn w-full bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700" data-format="pptx" data-template="default">PowerPoint</button>
+                                            <button class="export-btn w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700" data-format="html" data-template="default">HTML</button>
+                                        </div>
+                                    </div>
+                                    <div class="border rounded-lg p-4 hover:border-blue-500 transition-colors">
+                                        <h5 class="font-semibold text-gray-900">Executive Summary</h5>
+                                        <p class="text-sm text-gray-600">High-level summary for executives</p>
+                                        <div class="mt-3 space-y-2">
+                                            <button class="export-btn w-full bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700" data-format="pdf" data-template="executive">PDF</button>
+                                            <button class="export-btn w-full bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700" data-format="pptx" data-template="executive">PowerPoint</button>
+                                            <button class="export-btn w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700" data-format="html" data-template="executive">HTML</button>
+                                        </div>
+                                    </div>
+                                    <div class="border rounded-lg p-4 hover:border-blue-500 transition-colors">
+                                        <h5 class="font-semibold text-gray-900">Detailed Analysis</h5>
+                                        <p class="text-sm text-gray-600">Comprehensive technical report</p>
+                                        <div class="mt-3 space-y-2">
+                                            <button class="export-btn w-full bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700" data-format="pdf" data-template="detailed">PDF</button>
+                                            <button class="export-btn w-full bg-purple-600 text-white px-3 py-2 rounded text-sm hover:bg-purple-700" data-format="html" data-template="detailed">HTML</button>
+                                            <button class="export-btn w-full bg-indigo-600 text-white px-3 py-2 rounded text-sm hover:bg-indigo-700" data-format="json" data-template="detailed">JSON</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Export -->
+                            <div class="border-t pt-6">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Quick Export</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <button id="export-json" class="btn-cta bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
+                                        Export as JSON
+                                    </button>
+                                    <button id="export-html" class="btn-cta bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700">
+                                        Export as HTML
+                                    </button>
+                                    <button id="copy-results" class="btn-cta bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700">
+                                        Copy to Clipboard
+                                    </button>
+                                    <button id="share-link" class="btn-cta bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700">
+                                        Share Link
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Scheduled Reports Tab -->
+                    <div id="tab-scheduled" class="tab-content">
+                        <div class="glass p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-6 text-gray-900">Scheduled Reports</h3>
+                            
+                            <!-- Schedule New Report -->
+                            <div class="mb-8 p-6 bg-gray-50 rounded-lg">
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Schedule New Report</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Frequency</label>
+                                        <select id="schedule-frequency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="daily">Daily</option>
+                                            <option value="weekly">Weekly</option>
+                                            <option value="monthly">Monthly</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Format</label>
+                                        <select id="schedule-format" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="pdf">PDF</option>
+                                            <option value="pptx">PowerPoint</option>
+                                            <option value="html">HTML</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Template</label>
+                                        <select id="schedule-template" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="default">Default</option>
+                                            <option value="executive">Executive</option>
+                                            <option value="detailed">Detailed</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Email (Optional)</label>
+                                        <input type="email" id="schedule-email" placeholder="your@email.com" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    </div>
+                                </div>
+                                <button id="schedule-report-btn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
+                                    Schedule Report
+                                </button>
+                            </div>
+                            
+                            <!-- Active Schedules -->
+                            <div>
+                                <h4 class="text-lg font-semibold mb-4 text-gray-800">Active Schedules</h4>
+                                <div id="active-schedules" class="space-y-4">
+                                    <!-- Active schedules will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Tab functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and content
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+            });
+        });
+
+        // Dark mode toggle
+        document.getElementById('dark-toggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // Load and display results
+        function loadResults() {
+            const results = JSON.parse(localStorage.getItem('latestSeoResult'));
+            
+            if (!results || !results.data) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                return;
+            }
+
+            const data = results.data;
+            
+            // Hide loading, show results
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('results-content').classList.remove('hidden');
+
+            // Use the calculated scores from the API
+            const seoScore = data.seo_score || 0;
+            const contentScore = data.content_quality_score || 0;
+            const technicalScore = data.technical_score || 0;
+
+            // Update all scores
+            document.getElementById('seo-score').textContent = seoScore;
+            document.getElementById('content-score').textContent = contentScore;
+            document.getElementById('technical-score').textContent = technicalScore;
+
+            // Populate overview data
+            if (data.keywords) {
+                document.getElementById('keyword-count').textContent = data.keywords.length;
+                const keywordsList = document.getElementById('keywords-list');
+                keywordsList.innerHTML = data.keywords.map(keyword => 
+                    `<span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm mr-2 mb-2">${keyword}</span>`
+                ).join('');
+            }
+
+            if (data.meta_description) {
+                document.getElementById('meta-description').textContent = data.meta_description;
+            }
+
+            if (data.title_tag) {
+                document.getElementById('title-tag').textContent = data.title_tag;
+            }
+
+            if (data.word_count) {
+                document.getElementById('word-count').textContent = data.word_count;
+            }
+
+            if (data.readability) {
+                document.getElementById('readability').textContent = data.readability;
+            }
+
+            if (data.image_count !== undefined) {
+                document.getElementById('image-count').textContent = data.image_count;
+                const altTextStatus = data.missing_alt_text && data.missing_alt_text !== 'None found' 
+                    ? 'Missing alt text' 
+                    : 'All images have alt text';
+                document.getElementById('alt-text-status').textContent = altTextStatus;
+            }
+
+            // Populate broken images
+            const brokenImagesCount = data.broken_images ? data.broken_images.length : 0;
+            document.getElementById('broken-images-count').textContent = brokenImagesCount;
+            const brokenImagesList = document.getElementById('broken-images-list');
+            brokenImagesList.innerHTML = '';
+            
+            if (data.broken_images && data.broken_images.length > 0) {
+                data.broken_images.forEach(imageUrl => {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'text-sm text-red-600 break-all';
+                    imageItem.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                            <span class="truncate">${imageUrl}</span>
+                        </div>
+                    `;
+                    brokenImagesList.appendChild(imageItem);
+                });
+            } else {
+                brokenImagesList.innerHTML = '<p class="text-sm text-green-600">✓ No broken images found</p>';
+            }
+
+            // Populate broken links
+            const brokenLinksCount = data.broken_links ? data.broken_links.length : 0;
+            document.getElementById('broken-links-count').textContent = brokenLinksCount;
+            const brokenLinksList = document.getElementById('broken-links-list');
+            brokenLinksList.innerHTML = '';
+            
+            if (data.broken_links && data.broken_links.length > 0) {
+                data.broken_links.forEach(linkUrl => {
+                    const linkItem = document.createElement('div');
+                    linkItem.className = 'text-sm text-red-600 break-all';
+                    linkItem.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                            <a href="${linkUrl}" target="_blank" class="truncate hover:underline">${linkUrl}</a>
+                        </div>
+                    `;
+                    brokenLinksList.appendChild(linkItem);
+                });
+            } else {
+                brokenLinksList.innerHTML = '<p class="text-sm text-green-600">✓ No broken links found</p>';
+            }
+
+            // Populate images missing alt text
+            const missingAltCount = data.images_missing_alt ? data.images_missing_alt.length : 0;
+            document.getElementById('missing-alt-count').textContent = missingAltCount;
+            const missingAltImages = document.getElementById('missing-alt-images');
+            missingAltImages.innerHTML = '';
+            
+            if (data.images_missing_alt && data.images_missing_alt.length > 0) {
+                // Show first 3 images in overview
+                const previewImages = data.images_missing_alt.slice(0, 3);
+                previewImages.forEach(image => {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'text-sm text-orange-600 break-all';
+                    imageItem.innerHTML = `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                            <span class="truncate">${image.src}</span>
+                        </div>
+                    `;
+                    missingAltImages.appendChild(imageItem);
+                });
+                
+                if (data.images_missing_alt.length > 3) {
+                    const moreItem = document.createElement('div');
+                    moreItem.className = 'text-sm text-gray-500';
+                    moreItem.textContent = `... and ${data.images_missing_alt.length - 3} more`;
+                    missingAltImages.appendChild(moreItem);
+                }
+            } else {
+                missingAltImages.innerHTML = '<p class="text-sm text-green-600">✓ All images have alt text</p>';
+            }
+
+            // Populate broken resources tab
+            document.getElementById('broken-images-count-tab').textContent = brokenImagesCount;
+            document.getElementById('broken-links-count-tab').textContent = brokenLinksCount;
+            
+            const brokenImagesDetails = document.getElementById('broken-images-details');
+            const brokenLinksDetails = document.getElementById('broken-links-details');
+            
+            if (data.broken_images && data.broken_images.length > 0) {
+                brokenImagesDetails.innerHTML = `
+                    <div class="space-y-3">
+                        ${data.broken_images.map(imageUrl => `
+                            <div class="flex items-center space-x-3 p-3 bg-white rounded border">
+                                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                </svg>
+                                <span class="text-sm text-gray-700 break-all">${imageUrl}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                brokenImagesDetails.innerHTML = '<p class="text-green-600 font-medium">✓ All images are loading correctly</p>';
+            }
+            
+            if (data.broken_links && data.broken_links.length > 0) {
+                brokenLinksDetails.innerHTML = `
+                    <div class="space-y-3">
+                        ${data.broken_links.map(linkUrl => `
+                            <div class="flex items-center space-x-3 p-3 bg-white rounded border">
+                                <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                                </svg>
+                                <a href="${linkUrl}" target="_blank" class="text-sm text-blue-600 hover:underline break-all">${linkUrl}</a>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                brokenLinksDetails.innerHTML = '<p class="text-green-600 font-medium">✓ All links are working correctly</p>';
+            }
+
+            // Populate missing alt text tab
+            document.getElementById('missing-alt-count-tab').textContent = missingAltCount;
+            const missingAltImagesGrid = document.getElementById('missing-alt-images-grid');
+            missingAltImagesGrid.innerHTML = '';
+            
+            if (data.images_missing_alt && data.images_missing_alt.length > 0) {
+                missingAltImagesGrid.innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${data.images_missing_alt.map(image => `
+                            <div class="bg-white rounded-lg border border-orange-200 p-4 hover:shadow-md transition-shadow">
+                                <div class="relative mb-3">
+                                    <img src="${image.src}" alt="Missing alt text" 
+                                         class="w-full h-32 object-cover rounded border-2 border-orange-300"
+                                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDIwMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRkZGRkZGIi8+CjxwYXRoIGQ9Ik04MCA2MEgxMjBWNzBIMTQwVjgwSDEyMFY5MEg4MFY4MEg2MFY3MEg4MFY2MFoiIGZpbGw9IiNGRkE1MDAiLz4KPC9zdmc+'">
+                                    <div class="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                                        No Alt
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <a href="${image.src}" target="_blank" 
+                                       class="text-sm text-blue-600 hover:underline break-all block">
+                                        ${image.src}
+                                    </a>
+                                    <div class="text-xs text-gray-500">
+                                        <div>Width: ${image.width || 'auto'}</div>
+                                        <div>Height: ${image.height || 'auto'}</div>
+                                        ${image.id ? `<div>ID: ${image.id}</div>` : ''}
+                                        ${image.class ? `<div>Class: ${image.class}</div>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                missingAltImagesGrid.innerHTML = '<p class="text-green-600 font-medium">✓ All images have proper alt text</p>';
+            }
+
+            // Populate links and images tables
+            const internalLinksCount = data.all_internal_links ? data.all_internal_links.length : 0;
+            const allImagesCount = data.all_images ? data.all_images.length : 0;
+            
+            document.getElementById('internal-links-count-tab').textContent = internalLinksCount;
+            document.getElementById('all-images-count-tab').textContent = allImagesCount;
+            
+            // Populate internal links table
+            const internalLinksTable = document.getElementById('internal-links-table');
+            internalLinksTable.innerHTML = '';
+            
+            if (data.all_internal_links && data.all_internal_links.length > 0) {
+                data.all_internal_links.forEach(link => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-200 hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-4 py-3 text-sm text-gray-900">${link.text || 'No text'}</td>
+                        <td class="px-4 py-3 text-sm">
+                            <a href="${link.url}" target="_blank" class="text-blue-600 hover:underline break-all">
+                                ${link.url}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${link.title || '-'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${link.id || '-'}</td>
+                    `;
+                    internalLinksTable.appendChild(row);
+                });
+            } else {
+                internalLinksTable.innerHTML = '<tr><td colspan="4" class="px-4 py-3 text-center text-gray-500">No internal links found</td></tr>';
+            }
+            
+            // Populate all images table
+            const allImagesTable = document.getElementById('all-images-table');
+            allImagesTable.innerHTML = '';
+            
+            if (data.all_images && data.all_images.length > 0) {
+                data.all_images.forEach(image => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-200 hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-4 py-3">
+                            <img src="${image.src}" alt="${image.alt}" 
+                                 class="w-16 h-12 object-cover rounded border"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA2NCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjQ4IiBmaWxsPSIjRkZGRkZGIi8+CjxwYXRoIGQ9Ik0yMCAxNkgyNFYyMEgyOFYyNEgyNFYyOEgyMFYyNEgyNFYyMFoiIGZpbGw9IiNGRkE1MDAiLz4KPC9zdmc+'">
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <a href="${image.src}" target="_blank" class="text-blue-600 hover:underline break-all">
+                                ${image.src}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${image.alt || 'No alt text'}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">
+                            ${image.width ? image.width + 'px' : 'auto'} × ${image.height ? image.height + 'px' : 'auto'}
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-2 py-1 rounded text-xs ${image.has_alt ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                                ${image.has_alt ? 'Has Alt' : 'No Alt'}
+                            </span>
+                        </td>
+                    `;
+                    allImagesTable.appendChild(row);
+                });
+            } else {
+                allImagesTable.innerHTML = '<tr><td colspan="5" class="px-4 py-3 text-center text-gray-500">No images found</td></tr>';
+            }
+            
+            // Update summary
+            const imagesWithAlt = data.all_images ? data.all_images.filter(img => img.has_alt).length : 0;
+            const imagesWithoutAlt = data.all_images ? data.all_images.filter(img => !img.has_alt).length : 0;
+            
+            document.getElementById('internal-links-summary').textContent = internalLinksCount;
+            document.getElementById('all-images-summary').textContent = allImagesCount;
+            document.getElementById('images-with-alt-summary').textContent = imagesWithAlt;
+            document.getElementById('images-without-alt-summary').textContent = imagesWithoutAlt;
+
+            // Populate detailed metrics
+            if (data.internal_links !== undefined) {
+                document.getElementById('internal-links').textContent = data.internal_links;
+            }
+            if (data.external_links !== undefined) {
+                document.getElementById('external-links').textContent = data.external_links;
+            }
+            if (data.page_speed_score !== undefined) {
+                document.getElementById('page-speed').textContent = data.page_speed_score;
+            }
+
+            // Update technical metrics
+            document.getElementById('mobile-friendly').textContent = data.mobile_friendly ? '✓' : '✗';
+            document.getElementById('structured-data').textContent = data.structured_data ? '✓' : '✗';
+            document.getElementById('canonical-tag').textContent = data.canonical_tag ? '✓' : '✗';
+
+            // Populate suggestions
+            if (data.suggestions && data.suggestions.length > 0) {
+                const suggestionsList = document.getElementById('suggestions-list');
+                suggestionsList.innerHTML = data.suggestions.map(suggestion => 
+                    `<div class="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
+                        <svg class="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <p class="text-gray-700">${suggestion}</p>
+                    </div>`
+                ).join('');
+            } else {
+                // Default SEO suggestions based on common issues
+                const defaultSuggestions = [
+                    "Outbound links: No outbound links appear in this page. Add some!",
+                    "Keyphrase in image alt attributes: This page does not have images, a keyphrase, or both. Add some images with alt attributes that include the keyphrase or synonyms!",
+                    "Images: No images appear on this page. Add some!",
+                    "Internal links: No internal links appear in this page, make sure to add some!",
+                    "Keyphrase in introduction: Please add both a keyphrase and an introduction containing the keyphrase.",
+                    "Keyphrase in SEO title: Please add both a keyphrase and an SEO title beginning with the keyphrase.",
+                    "Keyphrase length: No focus keyphrase was set for this page. Set a keyphrase in order to calculate your SEO score.",
+                    "Keyphrase in meta description: Please add both a keyphrase and a meta description containing the keyphrase.",
+                    "Meta description length: No meta description has been specified. Search engines will display copy from the page instead. Make sure to write one!",
+                    "Previously used keyphrase: No focus keyphrase was set for this page. Please add a focus keyphrase you haven't used before on other content.",
+                    "Keyphrase in slug: Please add both a keyphrase and a slug containing the keyphrase.",
+                    "Text length: The text contains 0 words. This is far below the recommended minimum of 300 words. Add more content."
+                ];
+                
+                const suggestionsList = document.getElementById('suggestions-list');
+                suggestionsList.innerHTML = defaultSuggestions.map(suggestion => 
+                    `<div class="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
+                        <svg class="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        <p class="text-gray-700">${suggestion}</p>
+                    </div>`
+                ).join('');
+            }
+
+            // Create charts
+            createCharts(data);
+        }
+
+        function createCharts(data) {
+            // SEO Factors Chart
+            const seoCtx = document.getElementById('seoChart')?.getContext('2d');
+            if (seoCtx) {
+                new Chart(seoCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Keywords', 'Meta Description', 'Title Tag', 'Content', 'Technical'],
+                        datasets: [{
+                            data: [
+                                data.keywords ? data.keywords.length * 2 : 0,
+                                data.meta_description ? 15 : 0,
+                                data.title_tag ? 15 : 0,
+                                data.word_count && data.word_count > 200 ? 15 : 0,
+                                (data.mobile_friendly ? 10 : 0) + (data.structured_data ? 10 : 0)
+                            ],
+                            backgroundColor: [
+                                '#3b82f6',
+                                '#10b981',
+                                '#f59e0b',
+                                '#8b5cf6',
+                                '#ef4444'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Content Analysis Chart
+            const contentCtx = document.getElementById('contentChart')?.getContext('2d');
+            if (contentCtx) {
+                new Chart(contentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Word Count', 'Readability', 'Images', 'Links'],
+                        datasets: [{
+                            label: 'Score',
+                            data: [
+                                Math.min(data.word_count || 0, 100),
+                                data.readability && data.readability.toLowerCase().includes('good') ? 80 : 40,
+                                data.image_count || 0,
+                                (data.internal_links || 0) + (data.external_links || 0)
+                            ],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Enhanced Export functionality
+        document.getElementById('export-json').addEventListener('click', () => {
+            const results = JSON.parse(localStorage.getItem('latestSeoResult'));
+            if (results && results.data) {
+                const blob = new Blob([JSON.stringify(results.data, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'seo-audit-results.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        });
+
+        document.getElementById('copy-results').addEventListener('click', () => {
+            const results = JSON.parse(localStorage.getItem('latestSeoResult'));
+            if (results && results.data) {
+                navigator.clipboard.writeText(JSON.stringify(results.data, null, 2));
+                alert('Results copied to clipboard!');
+            }
+        });
+
+        // New export buttons functionality
+        document.querySelectorAll('.export-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const format = btn.getAttribute('data-format');
+                const template = btn.getAttribute('data-template');
+                const results = JSON.parse(localStorage.getItem('latestSeoResult'));
+                
+                if (!results || !results.data) {
+                    alert('No results available to export');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/export/report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            url: results.data.url || 'unknown',
+                            format: format,
+                            template: template,
+                            include_charts: true,
+                            include_recommendations: true
+                        })
+                    });
+
+                    if (response.ok) {
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `seo-audit-${format}-${template}.${format}`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    } else {
+                        alert('Export failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Export error:', error);
+                    alert('Export failed. Please try again.');
+                }
+            });
+        });
+
+        // Schedule report functionality
+        document.getElementById('schedule-report-btn').addEventListener('click', async () => {
+            const frequency = document.getElementById('schedule-frequency').value;
+            const format = document.getElementById('schedule-format').value;
+            const template = document.getElementById('schedule-template').value;
+            const email = document.getElementById('schedule-email').value;
+            const results = JSON.parse(localStorage.getItem('latestSeoResult'));
+            
+            if (!results || !results.data) {
+                alert('No results available to schedule');
+                return;
+            }
+
+            try {
+                const response = await fetch('/export/schedule', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: results.data.url || 'unknown',
+                        frequency: frequency,
+                        format: format,
+                        template: template,
+                        email: email || null
+                    })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    alert(`Report scheduled successfully! Report ID: ${result.report_id}`);
+                    // Refresh active schedules
+                    loadActiveSchedules();
+                } else {
+                    alert('Failed to schedule report. Please try again.');
+                }
+            } catch (error) {
+                console.error('Schedule error:', error);
+                alert('Failed to schedule report. Please try again.');
+            }
+        });
+
+        // Load active schedules
+        async function loadActiveSchedules() {
+            try {
+                const response = await fetch('/export/scheduled');
+                if (response.ok) {
+                    const schedules = await response.json();
+                    const container = document.getElementById('active-schedules');
+                    container.innerHTML = '';
+                    
+                    if (schedules.length === 0) {
+                        container.innerHTML = '<p class="text-gray-500">No active schedules found.</p>';
+                    } else {
+                        schedules.forEach(schedule => {
+                            const scheduleElement = document.createElement('div');
+                            scheduleElement.className = 'border rounded-lg p-4 bg-white';
+                            scheduleElement.innerHTML = `
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h5 class="font-semibold">${schedule.url}</h5>
+                                        <p class="text-sm text-gray-600">${schedule.frequency} - ${schedule.format}</p>
+                                    </div>
+                                    <button class="cancel-schedule-btn bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700" data-id="${schedule.report_id}">
+                                        Cancel
+                                    </button>
+                                </div>
+                            `;
+                            container.appendChild(scheduleElement);
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading schedules:', error);
+            }
+        }
+
+        // Cancel schedule functionality
+        document.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('cancel-schedule-btn')) {
+                const reportId = e.target.getAttribute('data-id');
+                try {
+                    const response = await fetch(`/export/schedule/${reportId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        alert('Schedule cancelled successfully');
+                        loadActiveSchedules();
+                    } else {
+                        alert('Failed to cancel schedule');
+                    }
+                } catch (error) {
+                    console.error('Cancel error:', error);
+                    alert('Failed to cancel schedule');
+                }
+            }
+        });
+
+        // Load schedules on page load
+        loadActiveSchedules();
+
+        // Load results on page load
+        document.addEventListener('DOMContentLoaded', loadResults);
+    </script>
+</body>
+</html> 
