@@ -1,3 +1,6 @@
+<img width="3320" height="3146" alt="image" src="https://github.com/user-attachments/assets/5604b21e-91b3-487b-a1b2-72a8a2997458" />
+
+
 # Boostify - Advanced SEO Audit Tool
 
 Boostify is a comprehensive SEO audit tool that provides detailed analysis, competitor comparison, analytics dashboard, and advanced export capabilities.
@@ -65,7 +68,7 @@ DEEPSEEK_API_KEY=your_deepseek_api_key_here
 
 4. **Run the application**:
 ```bash
-python main.py
+uvicorn app:main --reload --port 8000
 ```
 
 5. **Access the application**:
